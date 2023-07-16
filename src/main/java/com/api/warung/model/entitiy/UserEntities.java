@@ -1,5 +1,6 @@
-package com.api.warung.model;
+package com.api.warung.model.entitiy;
 
+import com.api.warung.model.entitiy.RolesEntities;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
