@@ -1,4 +1,4 @@
-package com.api.warung.model;
+package com.api.warung.model.entitiy;
 
 import jakarta.persistence.*;
 import lombok.Data;
