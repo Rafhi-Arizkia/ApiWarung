@@ -35,6 +35,9 @@ public class UserEntities implements UserDetails {
     inverseJoinColumns = @JoinColumn(name = "id_roles"))
     private List<RolesEntities> roles = new ArrayList<>();
 
+    @OneToMany(mappedBy = "userOrder", cascade = CascadeType.ALL)
+    private List<OrderEntities> userOrder= new ArrayList<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
