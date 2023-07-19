@@ -18,9 +18,9 @@ public class OrderEntities {
     private Date orderDate;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "id_user")
     private UserEntities userOrder;
     @ManyToOne
-    @JoinColumn(name = "menu_id")
+    @JoinColumn(name = "id_menu")
     private MenuEntities menuEntities;
 }
