@@ -8,6 +8,7 @@ import com.api.warung.model.entitiy.RolesEntities;
 import com.api.warung.model.entitiy.UserEntities;
 import com.api.warung.model.repo.RolesRepo;
 import com.api.warung.model.repo.UserRepo;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
+@Transactional
 public class UserService implements UserDetailsService {
     private final UserRepo userRepo;
     private final RolesRepo rolesRepo;
