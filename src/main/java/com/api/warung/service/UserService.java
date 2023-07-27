@@ -1,9 +1,7 @@
 package com.api.warung.service;
 
 import com.api.warung.auth.JwtService;
-import com.api.warung.dto.AuthToken;
-import com.api.warung.dto.LoginDto;
-import com.api.warung.dto.RegisterDto;
+import com.api.warung.dto.*;
 import com.api.warung.model.entitiy.RolesEntities;
 import com.api.warung.model.entitiy.UserEntities;
 import com.api.warung.model.repo.RolesRepo;
@@ -29,18 +27,18 @@ import java.util.*;
 public class UserService implements UserDetailsService {
     private final UserRepo userRepo;
     private final RolesRepo rolesRepo;
+    private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
     @Autowired
-    private JwtService jwtService;
-    @Autowired
-    @Lazy
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    @Lazy
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    public UserService(UserRepo userRepo, RolesRepo rolesRepo) {
+    public UserService(UserRepo userRepo, RolesRepo rolesRepo, JwtService jwtService,
+                       @Lazy PasswordEncoder passwordEncoder,
+                       @Lazy AuthenticationManager authenticationManager) {
         this.userRepo = userRepo;
         this.rolesRepo = rolesRepo;
+        this.jwtService = jwtService;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
 
     @Override
@@ -106,6 +104,53 @@ public class UserService implements UserDetailsService {
                     .build();
         }else {
             throw new NoSuchElementException("User with email " + loginDto.getEmail() + "not found");
+        }
+    }
+//    Admin
+    private void checkAdminRoleExist(){
+        RolesEntities roles = new RolesEntities();
+        roles.setRolesName("ROLE_ADMIN");
+        rolesRepo.save(roles);
+    }
+    public AuthToken saveAdmin(RegisterAdminDto registerAdminDto){
+        RolesEntities rolesAdmin = rolesRepo.findByRolesName("ROLE_ADMIN");
+        if (rolesAdmin == null){
+            checkAdminRoleExist();
+        }
+        var userEntities = UserEntities.builder()
+                .userName(registerAdminDto.getUserName())
+                .userEmail(registerAdminDto.getUserEmail())
+                .userAddress(registerAdminDto.getUserAddress())
+                .numberPhone(registerAdminDto.getNumberPhone())
+                .password(passwordEncoder.encode(registerAdminDto.getPassword()))
+                .roles(Collections.singletonList(rolesAdmin))
+                .build();
+        userRepo.save(userEntities);
+        var adminOptional = userRepo.findByUserEmail(registerAdminDto.getUserEmail());
+        if (adminOptional.isPresent()){
+            var admin  = adminOptional.get();
+            var jwtToken = jwtService.generateToken(new HashMap<>(),admin);
+            return AuthToken.builder()
+                    .token(jwtToken)
+                    .build();
+        }else {
+            throw new NoSuchElementException("User with email " + registerAdminDto.getUserEmail() + "not found");
+        }
+    }
+    public AuthToken loginAdminValidate(LoginAdminDto loginAdminDto){
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                loginAdminDto.getEmail(),
+                loginAdminDto.getPassword()
+        ));
+        var adminOptional = userRepo.findByUserEmail(loginAdminDto.getEmail());
+        if (adminOptional.isPresent()){
+            var admin = adminOptional.get();
+            var jwtToken = jwtService.generateToken(new HashMap<>(),admin);
+            return AuthToken.builder()
+                    .token(jwtToken)
+                    .build();
+        }else {
+            throw new NoSuchElementException("User with email " + loginAdminDto.getEmail() + "not found");
         }
     }
 }
