@@ -1,8 +1,6 @@
 package com.api.warung.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -18,6 +16,7 @@ public class RegisterDto {
     @NotEmpty(message = "Required Address")
     private String userAddress;
     @NotNull(message = "Required Number Phone")
+    @Pattern(regexp = "62\\d{11,12}", message = "Invalid phone number")
     private Long numberPhone;
     @NotEmpty(message = "Required password")
     private String password;
